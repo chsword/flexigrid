@@ -16,23 +16,23 @@
         if (t.grid) return false; //return if already exist	
         // apply default properties
         p = $.extend({
-            height: 'auto', //default height
-            width: 'auto', //auto width
+            //  height: 'auto', //default height
+            //  width: 'auto', //auto width
             striped: true, //apply odd even stripes
             //colMove:false,
-            novstripe: false,
+            //novstripe: false,
             minwidth: 30, //min width of columns
             minheight: 80, //min height of columns
-            resizable: false, //resizable table
+            //resizable: false, //resizable table
             url: false, //ajax url
             method: 'POST', // data sending method
             dataType: 'json', // type of data loaded 
             errormsg: '\u8fde\u63a5\u9519\u8bef',
-            usepager: false, //
+            //usepager: false, //
             nowrap: true, //
             page: 1, //current page
             total: 1, //total pages
-            useRp: false, //use the results per page select box
+            //useRp: false, //use the results per page select box
             rp: 20, // results per page
             // rpOptions: [10], //, 15, 20, 25, 40],
             pagestat: '\u5f53\u524d\u4e3a {from} - {to} \u6761 \u5171 {total} \u6761',
@@ -44,17 +44,17 @@
             // qtype: '',
             nomsg: '\u5f53\u524d\u65e0\u8bb0\u5f55',
             minColToggle: 1, //minimum allowed column to be hidden
-            showToggleBtn: false, //show or hide column toggle popup
+            //showToggleBtn: false, //show or hide column toggle popup
             hideOnSubmit: true,
-            autoload: false,
-            blockOpacity: 0.5,
-            onDragCol: false,
-            onToggleCol: false,
-            onChangeSort: false,
-            onSuccess: false,
-            onError: false,
-            onSubmit: false // using a custom populate function
-            , mulitSelect: false
+            //autoload: false,
+            blockOpacity: 0.5
+            //onDragCol: false,
+            //onToggleCol: false,
+            //onChangeSort: false,
+            //onSuccess: false,
+            //onError: false,
+            // onSubmit: false // using a custom populate function
+            // , mulitSelect: false
         }, p);
 
 
@@ -138,7 +138,6 @@
                         $('body').css('cursor', 'col-resize');
                     }
                     this.vresize = { h: p.height, sy: e.pageY, w: p.width, sx: e.pageX, hgo: hgo };
-
                 }
 
                 else if (dragtype == 'colMove' && p.colMove) //column header drag
@@ -157,8 +156,6 @@
                     if ($.browser.msie) {
                         this.colCopy.className = "colCopy ie";
                     }
-
-
                     $(this.colCopy).css({ position: 'absolute', float: 'left', display: 'none', textAlign: obj.align });
                     $('body').append(this.colCopy);
                     $(this.cDrag).hide();
@@ -382,102 +379,101 @@
                 var tbody = document.createElement('tbody');
 
                 if (p.dataType == 'json') {
-                    $.each
-				    		    (
-						    		    data.rows,
-             function (i, row) {
-                 var tr = document.createElement('tr');
-                 if (i % 2 && p.striped) tr.className = 'erow';
-
-                 if (row.id) {
-                     tr.id = 'row' + row.id;
-                     p.rows[tr.id] = row.cell;
-                 }
-
-                 //add cell
-                 $('thead tr:first th', g.hDiv).each
-                            (
-                                function () {
-
-                                    var td = document.createElement('td');
-                                    var idx = $(this).attr('axis').substr(3);
-                                    td.align = this.align;
-                                    td.innerHTML = row.cell[idx];
-                                    $(tr).append(td);
-                                    td = null;
-                                }
-                            );
-
-
-                 if ($('thead', this.gDiv).length < 1) //handle if grid has no headers
-                 {
-
-                     for (idx = 0; idx < cell.length; idx++) {
-                         var td = document.createElement('td');
-                         td.innerHTML = row.cell[idx];
-                         $(tr).append(td);
-                         td = null;
-                     }
-                 }
-
-                 $(tbody).append(tr);
-                 tr = null;
-             }
-                    );
-
-                } else if (p.dataType == 'xml') {
-
-                    i = 1;
-
-                    $("rows row", data).each
-                (
-
-                    function () {
-                        i++;
-
+                    var colns = this.getColNames();
+                    $.each(data.rows, function (i, row) {
                         var tr = document.createElement('tr');
                         if (i % 2 && p.striped) tr.className = 'erow';
+                        var entity = {};
+                        if (row.id) {
+                            tr.id = 'row' + row.id;
+                            //
+                            for (var i = 0; i < data.keys.length; i++) {
+                                entity[data.keys[i].toLowerCase()] = row.cell[i];
+                            }
+                            //
+                            p.rows[row.id] = entity;
+                        }
 
-                        var nid = $(this).attr('id');
-                        if (nid) tr.id = 'row' + nid;
-
-                        nid = null;
-
-                        var robj = this;
-
-
-
-                        $('thead tr:first th', g.hDiv).each
-                            (
-                                function () {
-                                    var td = document.createElement('td');
-                                    var idx = $(this).attr('axis').substr(3);
-                                    td.align = this.align;
-                                    td.innerHTML = $("cell:eq(" + idx + ")", robj).text();
-                                    $(tr).append(td);
-                                    td = null;
-                                }
-                            );
+                        //add cell
+                        $('thead tr:first th', g.hDiv).each(function () {
+                            var td = document.createElement('td');
+                            var idx = $(this).attr('axis').substr(3);
+                            td.align = this.align;
+                            var n = $(this).attr('cln'); //add
+                            //td.innerHTML = row.cell[idx];
+                            td.innerHTML = entity[n];
+                            $(tr).append(td);
+                            td = null;
+                        });
 
 
                         if ($('thead', this.gDiv).length < 1) //handle if grid has no headers
                         {
-                            $('cell', this).each
-                                (
-                                    function () {
-                                        var td = document.createElement('td');
-                                        td.innerHTML = $(this).text();
-                                        $(tr).append(td);
-                                        td = null;
-                                    }
-                                );
+                            for (idx = 0; idx < cell.length; idx++) {
+                                var td = document.createElement('td');
+                                td.innerHTML = row.cell[idx];
+                                $(tr).append(td);
+                                td = null;
+                            }
                         }
 
                         $(tbody).append(tr);
                         tr = null;
-                        robj = null;
-                    }
-                );
+                    });
+
+                } else if (p.dataType == 'xml') {
+                    alert('didn\'t supports xml')
+                    //                    i = 1;
+
+                    //                    $("rows row", data).each
+                    //                (
+
+                    //                    function () {
+                    //                        i++;
+
+                    //                        var tr = document.createElement('tr');
+                    //                        if (i % 2 && p.striped) tr.className = 'erow';
+
+                    //                        var nid = $(this).attr('id');
+                    //                        if (nid) tr.id = 'row' + nid;
+
+                    //                        nid = null;
+
+                    //                        var robj = this;
+
+
+
+                    //                        $('thead tr:first th', g.hDiv).each
+                    //                            (
+                    //                                function () {
+                    //                                    var td = document.createElement('td');
+                    //                                    var idx = $(this).attr('axis').substr(3);
+                    //                                    td.align = this.align;
+                    //                                    td.innerHTML = $("cell:eq(" + idx + ")", robj).text();
+                    //                                    $(tr).append(td);
+                    //                                    td = null;
+                    //                                }
+                    //                            );
+
+
+                    //                        if ($('thead', this.gDiv).length < 1) //handle if grid has no headers
+                    //                        {
+                    //                            $('cell', this).each
+                    //                                (
+                    //                                    function () {
+                    //                                        var td = document.createElement('td');
+                    //                                        td.innerHTML = $(this).text();
+                    //                                        $(tr).append(td);
+                    //                                        td = null;
+                    //                                    }
+                    //                                );
+                    //                        }
+
+                    //                        $(tbody).append(tr);
+                    //                        tr = null;
+                    //                        robj = null;
+                    //                    }
+                    //                );
 
                 }
 
@@ -598,15 +594,12 @@
                 if (!p.newp || p.newp < 1) p.newp = 1;
 
                 if (p.page > p.pages) p.page = p.pages;
-                var param = { page: p.newp, rp: p.rp, sortname: p.sortname, sortorder: p.sortorder };
-                //                var param = [
-                //					 { name: 'page', value: p.newp }
-                //					, { name: 'rp', value: p.rp }
-                //					, { name: 'sortname', value: p.sortname }
-                //					, { name: 'sortorder', value: p.sortorder }
-                //					, { name: 'query', value: p.query }
-                //					, { name: 'qtype', value: p.qtype }
-                //				];
+                var param = {
+                    'page': p.newp,
+                    'rp': p.rp,
+                    'sortname': p.sortname,
+                    'sortorder': p.sortorder
+                };
                 if (p.params) {
                     //                    for (var pi = 0; pi < p.params.length; pi++)
                     //                        param[param.length] = p.params[pi];
@@ -629,13 +622,6 @@
                     error: function (XMLHttpRequest, textStatus, errorThrown) { try { if (p.onError) p.onError(XMLHttpRequest, textStatus, errorThrown); } catch (e) { } }
                 });
             },
-            //            doSearch: function () {
-            //                p.query = $('input[name=q]', g.sDiv).val();
-            //                p.qtype = $('select[name=qtype]', g.sDiv).val();
-            //                p.newp = 1;
-
-            //                this.populate();
-            //            },
             changePage: function (ctype) { //change page
 
                 if (this.loading) return true;
@@ -663,6 +649,19 @@
                     this.populate();
 
             },
+            getColNames: function () {
+                var arr = new Array();
+                for (var i = 0; i < p.colModel.length; i++)
+                    arr.push(p.colModel[i].name);
+                return arr;
+            },
+            getRow: function (key) {
+                if (key.indexOf("row") > -1 || isNaN(key))
+                    key = key.toString().substr(3);
+                if (g) {
+                    return p.rows[key];
+                }
+            },
             addCellProp: function () {
 
                 $('tbody tr td', g.bDiv).each
@@ -677,9 +676,7 @@
                                     this.className = 'sorted';
                                 }
                                 $(tdDiv).css({ textAlign: pth.align, width: $('div:first', pth)[0].style.width });
-
                                 if (pth.hide) $(this).css('display', 'none');
-
                             }
 
                             if (p.nowrap == false) $(tdDiv).css('white-space', 'normal');
@@ -695,13 +692,11 @@
 
                             if (pth != null) {
                                 if (pth.process)
-                                    pth.process(tdDiv, pid);
+                                //pth.process(tdDiv, pid);
+                                    pth.process(tdDiv, g.getRow(prnt.id));
                             }
-
                             $(this).empty().append(tdDiv).removeAttr('width'); //wrap content
-
                             //add editable event here 'dblclick'
-
                         }
                     );
 
@@ -718,6 +713,7 @@
                 var pdt = parseInt($(obj).css('paddingTop'));
                 return { ht: ht, wt: wt, top: top, left: left, pdl: pdl, pdt: pdt, pht: pht, pwt: pwt };
             },
+
             addRowProp: function () {
                 $('tbody tr', g.bDiv).each
                     (
@@ -786,9 +782,10 @@
 
                 th.innerHTML = cm.display;
 
-                if (cm.name  && cm.sortable)
+                if (cm.name && cm.sortable)
                     $(th).attr('abbr', cm.name);
-
+                if (cm.name)
+                    $(th).attr('cln', cm.name.toLowerCase());
                 //th.idx = i;
 
                 $(th).attr('axis', 'col' + i);
@@ -832,7 +829,7 @@
 
         //set gDiv
         g.gDiv.className = 'flexigrid';
-        if (p.width != 'auto') g.gDiv.style.width = p.width + 'px';
+        if (p.width && p.width != 'auto') g.gDiv.style.width = p.width + 'px';
 
         //add conditional classes
         if ($.browser.msie)
@@ -908,9 +905,6 @@
             (
                 function () {
                     var thdiv = document.createElement('div');
-
-
-
                     if ($(this).attr('abbr')) {
                         $(this).click(
                                 function (e) {
@@ -919,9 +913,7 @@
                                     var obj = (e.target || e.srcElement);
                                     if (obj.href || obj.type) return true;
                                     g.changeSort(this);
-                                }
-                            )
-                            ;
+                                });
 
                         if ($(this).attr('abbr') == p.sortname) {
                             this.className = 'sorted';
@@ -945,8 +937,7 @@
                     $(this).empty().append(thdiv).removeAttr('width')
                         .mousedown(function (e) {
                             g.dragStart('colMove', e, this);
-                        })
-                        .hover(
+                        }).hover(
                             function () {
                                 if (!g.colresize && !$(this).hasClass('thMove') && !g.colCopy) $(this).addClass('thOver');
 
@@ -1023,10 +1014,10 @@
         g.bDiv.className = 'bDiv';
         $(t).before(g.bDiv);
         $(g.bDiv).scroll(function (e) { g.scroll() })
-        .css({ height: (p.height == 'auto') ? 'auto' : p.height + "px"
+        .css({ height: (!p.height || p.height == 'auto') ? 'auto' : p.height + "px"
         })
         .append(t);
-
+        if (!p.height) p.height = 'auto';
         if (p.height == 'auto') {
             $('table', g.bDiv).addClass('autoht');
             if ($.browser.msie && $.browser.version == 7.0) {
@@ -1257,17 +1248,14 @@
             var cn = 0;
 
 
-            $('th div', g.hDiv).each
-            			(
-            			 	function () {
-            			 	    var kcol = $("th[axis='col" + cn + "']", g.hDiv)[0];
-            			 	    var chk = 'checked="checked"';
-            			 	    if (kcol.style.display == 'none') chk = '';
+            $('th div', g.hDiv).each(function () {
+                var kcol = $("th[axis='col" + cn + "']", g.hDiv)[0];
+                var chk = 'checked="checked"';
+                if (kcol.style.display == 'none') chk = '';
 
-            			 	    $('tbody', g.nDiv).append('<tr><td class="ndcol1"><input type="checkbox" ' + chk + ' class="togCol" value="' + cn + '" /></td><td class="ndcol2">' + this.innerHTML + '</td></tr>');
-            			 	    cn++;
-            			 	}
-            			);
+                $('tbody', g.nDiv).append('<tr><td class="ndcol1"><input type="checkbox" ' + chk + ' class="togCol" value="' + cn + '" /></td><td class="ndcol2">' + this.innerHTML + '</td></tr>');
+                cn++;
+            });
 
             if ($.browser.msie && $.browser.version < 7.0)
                 $('tr', g.nDiv).hover
@@ -1358,7 +1346,6 @@
         if (p.url && p.autoload) {
             g.populate();
         }
-
         return t;
 
     };
@@ -1368,7 +1355,6 @@
     $(document).ready(function () { docloaded = true });
 
     $.fn.flexigrid = function (p) {
-
         return this.each(function () {
             if (!docloaded) {
                 $(this).hide();
@@ -1383,46 +1369,31 @@
                 $.addFlex(this, p);
             }
         });
+    };
 
-    }; //end flexigrid
-
-    $.fn.flexReload = function (p) { // function to reload grid
-
+    $.fn.flexReload = function (p) {
         return this.each(function () {
             if (this.grid && this.p.url) this.grid.populate();
         });
+    };
 
-    }; //end flexReload
-
-    $.fn.flexOptions = function (p) { //function to update general options
+    $.fn.flexOptions = function (p) {
         return this.each(function () {
             if (this.grid) $.extend(this.p, p);
         });
 
-    }; //end flexOptions
+    };
     $.fn.flexGetPage = function (page, data) {
         return this.flexOptions({ newp: page, params: data }).flexReload();
     };
+
     $.fn.flexGetData = function (key) {
-        if (key.indexOf('row') == -1 && !isNaN(key))
-            key = 'row' + key;
-
-        var ret; var ret2 = {};
+        var ret = {};
         this.each(function () {
-            if (this.grid) {
-                ret = this.p.rows[key];
-                ret2 = {};
-                if (ret) {
-                    for (var i = 0; i < this.p.colModel.length; i++) {
-                        var n = this.p.colModel[i];
-                        if (i < ret.length)
-                            ret2[n.name] = ret[i];
-                    }
-                }
-            }
+            if (this.grid)
+                ret = this.grid.getRow(key);
         });
-
-        return ret2;
+        return ret;
     };
     $.fn.flexToggleCol = function (cid, visible) { // function to reload grid
 
@@ -1430,7 +1401,7 @@
             if (this.grid) this.grid.toggleCol(cid, visible);
         });
 
-    }; //end flexToggleCol
+    };
 
     $.fn.flexAddData = function (data) { // function to add data to grid
         return this.each(function () {
@@ -1439,7 +1410,6 @@
     };
 
     $.fn.noSelect = function (p) { //no select plugin by me :-)
-
         if (p == null)
             prevent = true;
         else
@@ -1482,8 +1452,9 @@
             rp: ps.rp,
             autoload: ps.autoload,
             height: ps.height,
+            width: ps.width,
             colMove: ps.colMove,
-            colresize: ps.colResize,
+            colresize: ps.colResize, dataType: ps.dataType,
             minheight: ps.minheight == null ? 80 : ps.minheight,
             pager: ps.pager == null ? ".page" : ps.pager,
             onSuccess: function () {
